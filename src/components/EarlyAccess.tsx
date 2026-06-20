@@ -337,39 +337,62 @@ export default function EarlyAccess({ open }: { open: boolean }) {
               <motion.div key="quests" {...fade}>
                 <StepHeader index={2} title="Perform the ritual." />
                 <p className="mb-8 text-sm leading-relaxed text-ink-dim">
-                  Four marks. Each opens X — return here once it&apos;s done.
+                  Four marks, one at a time. Each opens X — return here once
+                  it&apos;s done.
                 </p>
                 <div className="flex flex-col">
                   {QUESTS.map((q, i) => {
                     const isDone = done[q.id];
+                    const isUnlocked = QUESTS.slice(0, i).every(
+                      (prev) => done[prev.id],
+                    );
+                    const isLocked = !isUnlocked && !isDone;
                     return (
                       <button
                         key={q.id}
-                        onClick={() => openQuest(q.id, q.href())}
-                        className="group relative flex items-center gap-5 overflow-hidden border-b border-ink-line py-6 text-left transition-colors hover:border-ink-line-strong"
+                        type="button"
+                        disabled={isLocked}
+                        onClick={() => {
+                          if (!isLocked) openQuest(q.id, q.href());
+                        }}
+                        className={`group relative flex items-center gap-5 overflow-hidden border-b border-ink-line py-6 text-left transition-colors ${
+                          isLocked
+                            ? "cursor-not-allowed opacity-35"
+                            : "hover:border-ink-line-strong"
+                        }`}
                       >
-                        <span className="quest-glow" aria-hidden />
+                        {!isLocked && <span className="quest-glow" aria-hidden />}
                         <span
                           className={`quest-index mono text-xs ${
-                            isDone ? "text-ink-white" : "text-ink-faint"
+                            isDone
+                              ? "text-ink-white"
+                              : isLocked
+                                ? "text-ink-faint"
+                                : "text-ink-dim"
                           }`}
                         >
                           {String(i + 1).padStart(2, "0")}
                         </span>
                         <span
-                          className={`quest-icon ${isDone ? "is-done" : ""}`}
+                          className={`quest-icon ${
+                            isDone ? "is-done" : isLocked ? "opacity-50" : ""
+                          }`}
                         >
                           <QuestIcon id={q.id} />
                         </span>
                         <span className="flex-1">
-                          <span className="block text-xl text-ink-white md:text-2xl">
+                          <span
+                            className={`block text-xl md:text-2xl ${
+                              isLocked ? "text-ink-faint" : "text-ink-white"
+                            }`}
+                          >
                             {q.label}
                           </span>
                           <span className="block text-xs text-ink-dim">
-                            {q.hint}
+                            {isLocked ? "Complete the mark before." : q.hint}
                           </span>
                         </span>
-                        <Glyph done={isDone} />
+                        <Glyph done={isDone} locked={isLocked} />
                       </button>
                     );
                   })}
@@ -528,15 +551,20 @@ function BackBtn({ onClick }: { onClick: () => void }) {
   );
 }
 
-function Glyph({ done }: { done: boolean }) {
+function Glyph({ done, locked = false }: { done: boolean; locked?: boolean }) {
   return (
     <span
       className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ${
         done ? "glyph-pop" : ""
       }`}
       style={{
-        borderColor: done ? "var(--ink-white)" : "var(--ink-line-strong)",
+        borderColor: done
+          ? "var(--ink-white)"
+          : locked
+            ? "var(--ink-line)"
+            : "var(--ink-line-strong)",
         background: done ? "var(--ink-white)" : "transparent",
+        opacity: locked ? 0.5 : 1,
       }}
     >
       {done ? (
@@ -545,6 +573,16 @@ function Glyph({ done }: { done: boolean }) {
             d="M4 12.5l5 5L20 6.5"
             stroke="#000"
             strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ) : locked ? (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M7 11V8a5 5 0 0 1 10 0v3M6 11h12v10H6V11z"
+            stroke="var(--ink-faint)"
+            strokeWidth="1.6"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
