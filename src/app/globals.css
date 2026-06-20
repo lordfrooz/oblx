@@ -1,26 +1,301 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink-black: #050505;
+  --ink-void: #000000;
+  --ink-white: #f4f1ea;
+  --ink-dim: #8a877f;
+  --ink-faint: #6f6c64;
+  --ink-line: rgba(244, 241, 234, 0.12);
+  --ink-line-strong: rgba(244, 241, 234, 0.28);
+  --ink-danger: #c96a5e;
+  --ink-ok: #c9c4b4;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--ink-black);
+  --color-foreground: var(--ink-white);
+  --color-ink-black: var(--ink-black);
+  --color-ink-void: var(--ink-void);
+  --color-ink-white: var(--ink-white);
+  --color-ink-dim: var(--ink-dim);
+  --color-ink-faint: var(--ink-faint);
+  --color-ink-line: var(--ink-line);
+  --color-ink-danger: var(--ink-danger);
+  --color-ink-ok: var(--ink-ok);
+  --font-sans: var(--font-sans-stack);
+  --font-mono: var(--font-mono-stack);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--ink-void);
+  color: var(--ink-white);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans-stack), "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.01em;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--ink-white);
+  color: var(--ink-void);
+}
+
+/* Thin, ink-like scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-faint);
+  border-radius: 0;
+}
+
+/* ---------- Film grain overlay ---------- */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grainshift 0.6s steps(2) infinite;
+}
+
+@keyframes grainshift {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-3%, 2%); }
+  100% { transform: translate(2%, -2%); }
+}
+
+/* Soft vignette to deepen the void */
+.vignette::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 120% at 50% 40%,
+    transparent 55%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+}
+
+/* ---------- Logo mark (luminance-masked, transparent bg) ---------- */
+.mark {
+  display: inline-block;
+  background-color: var(--ink-white);
+  -webkit-mask-image: url(/logo.png);
+  mask-image: url(/logo.png);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  /* derive the mask from brightness, not the (opaque) alpha channel */
+  -webkit-mask-mode: luminance;
+  mask-mode: luminance;
+}
+
+/* ---------- WebGL smoke background ---------- */
+.smoke-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--ink-void);
+}
+.smoke-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain::before {
+    animation: none !important;
+  }
+}
+
+/* ---------- Type helpers ---------- */
+.display {
+  font-family: var(--font-sans-stack), "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 0.92;
+}
+
+.kicker {
+  font-family: var(--font-mono-stack), ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.42em;
+  font-size: 0.66rem;
+}
+
+.mono {
+  font-family: var(--font-mono-stack), ui-monospace, monospace;
+}
+
+/* ---------- Ink draw animation for the mark ---------- */
+@keyframes inkrise {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+    filter: blur(14px) contrast(1.4);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0) contrast(1);
+  }
+}
+
+.ink-rise {
+  animation: inkrise 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.015); }
+}
+.breathe {
+  animation: breathe 7s ease-in-out infinite;
+}
+
+/* ---------- Buttons / inputs ---------- */
+.ink-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border: 1px solid var(--ink-line-strong);
+  background: transparent;
+  color: var(--ink-white);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.72rem;
+  font-family: var(--font-mono-stack), ui-monospace, monospace;
+  padding: 0.95rem 1.8rem;
+  cursor: pointer;
+  transition: color 0.35s ease, border-color 0.35s ease;
+  overflow: hidden;
+}
+.ink-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink-white);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
+}
+.ink-btn:hover:not(:disabled) {
+  color: var(--ink-void);
+  border-color: var(--ink-white);
+}
+.ink-btn:hover:not(:disabled)::before {
+  transform: scaleY(1);
+}
+.ink-btn:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+.ink-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--ink-line-strong);
+  color: var(--ink-white);
+  font-size: 1.5rem;
+  padding: 0.6rem 0.2rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+  font-family: var(--font-mono-stack), ui-monospace, monospace;
+}
+.ink-input::placeholder {
+  color: rgba(244, 241, 234, 0.7);
+  opacity: 1;
+}
+.ink-input:focus {
+  border-color: var(--ink-white);
+}
+
+.hairline {
+  height: 1px;
+  width: 100%;
+  background: var(--ink-line);
+}
+
+/* ---------- Quest rows ---------- */
+.quest-glow {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 220px;
+  height: 140px;
+  transform: translate(-24px, -50%) scale(0.6);
+  transform-origin: left center;
+  background: radial-gradient(
+    closest-side,
+    rgba(244, 241, 234, 0.12),
+    transparent 72%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease,
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.group:hover .quest-glow {
+  opacity: 1;
+  transform: translate(0, -50%) scale(1);
+}
+
+.quest-icon {
+  color: var(--ink-dim);
+  transition: color 0.35s ease,
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.group:hover .quest-icon {
+  color: var(--ink-white);
+  transform: scale(1.12) rotate(-2deg);
+}
+.quest-icon.is-done {
+  color: var(--ink-white);
+}
+
+.quest-index {
+  transition: color 0.35s ease;
+}
+.group:hover .quest-index {
+  color: var(--ink-white);
+}
+
+/* Status ring fill on completion — single, cheap pop. */
+@keyframes glyphpop {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.glyph-pop {
+  animation: glyphpop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
