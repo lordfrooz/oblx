@@ -290,12 +290,15 @@ export default function EarlyAccess({ open }: { open: boolean }) {
                     ? "Enter your X handle. This is how the circle will know you."
                     : "Enter your X handle to retrieve your invite code."}
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                  <span className="flex shrink-0 items-center text-ink-dim">
+                    <XLogo size={22} />
+                  </span>
                   <span className="text-2xl text-ink-faint">@</span>
                   <input
                     autoFocus
                     className="ink-input"
-                    placeholder="yourhandle"
+                    placeholder="yourusername"
                     value={handle}
                     onChange={(e) => setHandle(e.target.value)}
                     onKeyDown={(e) => {
@@ -561,6 +564,14 @@ function Glyph({ done }: { done: boolean }) {
   );
 }
 
+function XLogo({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.3 3h2.9l-6.4 7.3L21.5 21h-5.9l-4.6-6-5.3 6H2.8l6.8-7.8L2.2 3h6l4.2 5.5L17.3 3zm-1 16.2h1.6L8.1 4.7H6.4l9.9 14.5z" />
+    </svg>
+  );
+}
+
 function QuestIcon({ id }: { id: QuestId }) {
   const common = {
     width: 28,
@@ -574,12 +585,7 @@ function QuestIcon({ id }: { id: QuestId }) {
   };
   switch (id) {
     case "follow":
-      // X / twitter glyph
-      return (
-        <svg width={28} height={28} viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.3 3h2.9l-6.4 7.3L21.5 21h-5.9l-4.6-6-5.3 6H2.8l6.8-7.8L2.2 3h6l4.2 5.5L17.3 3zm-1 16.2h1.6L8.1 4.7H6.4l9.9 14.5z" />
-        </svg>
-      );
+      return <XLogo size={28} />;
     case "like":
       return (
         <svg {...common}>
