@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
-import { Smoke } from "@/components/Smoke";
+import { Web3Provider } from "@/components/Web3Provider";
 
 const sans = Inter({
   variable: "--font-sans-stack",
@@ -19,9 +20,9 @@ const SITE_URL = "https://oblx.ink";
 const OG_IMAGE = `${SITE_URL}/og.png`;
 
 export const metadata: Metadata = {
-  title: "OBLX.INK — Early Access",
+  title: "OBLX.INK",
   description:
-    "OBLX.INK — ink & on-chain inscriptions on Base. Inscribe your place in early access.",
+    "Ink & inscriptions on Base. OBLX — on-chain inscription protocol.",
   metadataBase: new URL(SITE_URL),
   icons: {
     icon: "/logo.png",
@@ -32,8 +33,8 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: "OBLX.INK",
     locale: "en_US",
-    title: "OBLX.INK — Early Access",
-    description: "Ink & inscriptions on Base. The ritual begins.",
+    title: "OBLX.INK",
+    description: "Ink & inscriptions on Base.",
     images: [
       {
         url: OG_IMAGE,
@@ -48,25 +49,26 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@oblxink",
     creator: "@oblxink",
-    title: "OBLX.INK — Early Access",
-    description: "Ink & inscriptions on Base. The ritual begins.",
+    title: "OBLX.INK",
+    description: "Ink & inscriptions on Base.",
     images: [OG_IMAGE],
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieHeader = (await headers()).get("cookie");
+
   return (
     <html
       lang="en"
       className={`${sans.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="grain vignette min-h-full bg-ink-void text-ink-white">
-        <Smoke />
-        {children}
+      <body className="min-h-full antialiased">
+        <Web3Provider cookies={cookieHeader}>{children}</Web3Provider>
       </body>
     </html>
   );

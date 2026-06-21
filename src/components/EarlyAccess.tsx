@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { isAddress } from "viem";
 import { Mark } from "@/components/Mark";
+import Link from "next/link";
 import { QUESTS, SITE, type QuestId } from "@/lib/config";
 import { clearRitual, loadRitual, saveRitual } from "@/lib/ritual-storage";
 
@@ -206,14 +207,22 @@ export default function EarlyAccess({ open }: { open: boolean }) {
             OBLX.INK
           </span>
         </div>
-        <a
-          href={`https://x.com/${SITE.handle}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mono text-[0.66rem] uppercase tracking-[0.3em] text-ink-dim transition-colors hover:text-ink-white"
-        >
-          @{SITE.handle}
-        </a>
+        <div className="flex items-center gap-5">
+          <Link
+            href="/mint"
+            className="mono text-[0.66rem] uppercase tracking-[0.3em] text-ink-dim transition-colors hover:text-ink-white"
+          >
+            Mint
+          </Link>
+          <a
+            href={`https://x.com/${SITE.handle}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mono text-[0.66rem] uppercase tracking-[0.3em] text-ink-dim transition-colors hover:text-ink-white"
+          >
+            @{SITE.handle}
+          </a>
+        </div>
       </header>
 
       {/* progress rail */}

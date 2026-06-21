@@ -34,6 +34,20 @@ async function ensureSchema(client: PoolClient) {
       CONSTRAINT claims_code_unique UNIQUE (code)
     );
   `);
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS mints (
+      id SERIAL PRIMARY KEY,
+      tx_hash TEXT NOT NULL,
+      address TEXT NOT NULL,
+      amount INTEGER NOT NULL,
+      quantity INTEGER NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT mints_tx_hash_unique UNIQUE (tx_hash)
+    );
+  `);
+  await client.query(`
+    CREATE INDEX IF NOT EXISTS mints_created_at_idx ON mints (created_at DESC);
+  `);
 }
 
 export async function withDb<T>(
